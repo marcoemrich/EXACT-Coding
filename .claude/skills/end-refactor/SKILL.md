@@ -132,6 +132,7 @@ Read the active stack profile and run the smell and cognitive-complexity tools i
 | TypeScript + Vitest | ESLint with the SonarJS plugin; cognitive complexity from `sonarjs/cognitive-complexity` |
 | Java + JUnit 5 + Maven | PMD with the project ruleset; cognitive complexity from its `CognitiveComplexity` rule |
 | Python + pytest | ruff for smells; cognitive complexity from complexipy, or whichever cognitive-complexity tool the project configures |
+| Rust + Cargo | clippy for smells; cognitive complexity from rust-code-analysis, or whichever cognitive-complexity tool the project configures |
 
 Only run gates the project actually declares or has installed. Do not invent a tool, a plugin or a configuration to obtain a preferred measurement.
 

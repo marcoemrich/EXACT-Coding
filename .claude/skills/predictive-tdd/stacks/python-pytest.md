@@ -45,6 +45,17 @@ def test_handles_the_next_behaviour():
     """Add the observation when this behavior enters Red."""
 ```
 
+Place the verification tests after all driving tests, as methods of a class named exactly `TestVerification`. The workflow refers to the group by this name; do not translate or extend it:
+
+```python
+class TestVerification:
+    @pytest.mark.skip(reason="TODO: combination result from the specification")
+    def test_handles_the_combination(self):
+        """Add the observation when this test is activated."""
+```
+
+Moving a test into the verification group means moving its marked function into that class, as a method, before activating it.
+
 Use plain `assert` statements and `pytest.raises` for expected exceptions. Keep every future behavior marked; do not use commented-out tests, a bare `pass` without a marker, or name filters as the test list.
 
 ## Interpret RED correctly
