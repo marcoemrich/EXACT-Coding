@@ -154,16 +154,16 @@ If all checks pass, you're ready for the workshop!
 
 ## Agent Configuration
 
-This repository distributes **EXACT Coding Predictive TDD v1** as the universal
+This repository distributes **EXACT Coding Predictive TDD v1.2** as the universal
 maintained workflow: one shared context, falsifiable predictions before
 deterministic checks, and inline refactoring under the Four Rules of Simple
 Design. The historical Opus/Hybrid branches remain available for reproduction,
 but are superseded as the maintained product line.
 
 Each PTDD branch carries exactly one agent configuration. This branch is part
-of **Predictive TDD v1**, distribution version **2026-09-21**.
+of **Predictive TDD v1.2**, distribution version **2026-10-29**.
 
-| Agent | Predictive TDD v1 branch | Config | Start EXACT Coding with |
+| Agent | Predictive TDD branch | Config | Start EXACT Coding with |
 |---|---|---|---|
 | Claude Code | `main` | `.claude/` | `/exact-coding`, or ask for EXACT Coding |
 | GitHub Copilot | `harness/copilot` | `.github/` | `/exact-coding`, or ask for EXACT Coding |
@@ -187,7 +187,7 @@ git checkout harness/pi           # pi
 Keeping line and harness combinations on separate branches prevents agents that
 scan several vendors' directories from loading duplicate workflows.
 
-### Predictive TDD v1 workflow
+### Predictive TDD v1.2 workflow
 
 The workflow first creates a complete ordered test list with all future
 behaviors inactive. It then handles exactly one behavior per cycle:
@@ -199,8 +199,23 @@ behaviors inactive. It then handles exactly one behavior per cycle:
    of Simple Design.
 4. **Close** — predict and run the complete suite and applicable stack gates.
 
-A test already satisfied by an earlier generalization is valid evidence. The
-workflow confirms it instead of manufacturing a failure.
+The test list has two parts. **Driving tests** run through the cycle above, one
+at a time; each must fail first, because that failure is what justifies the
+next production change. **Verification tests** sit after them in a group named
+`verification`: mostly combinations of rules the driving tests already built.
+They are expected to pass on activation, so they cannot drive anything — but
+they protect the result against a later change that breaks a combination or
+drops an entry.
+
+So the workflow keeps them apart. Before activating a driving test it asks
+whether the test will still fail, and moves it into the verification group if
+an earlier generalization already covers it. Once every driving test is green,
+it activates the verification tests one at a time, each predicted to pass. If
+one fails, the split was wrong, and that test gets a full Red-Green-Refactor
+cycle of its own.
+
+A test that passes is never a reason to manufacture a failure — expected in the
+verification group, a recorded missed prediction in the driving part.
 
 The Predictive TDD loop deliberately has **no APP mass objective, no refactor
 subagent, and no metric-driven end pass**. Those are product-method choices,
@@ -304,12 +319,13 @@ automatically.
 
 Workflow methodology and language/tooling are separate. Test syntax, inactive-test
 conventions, commands, compiler behavior, and lint advice live only in the stack
-profiles. Every branch ships three:
+profiles. Every branch ships four:
 
 ```text
 <agent-config>/skills/predictive-tdd/stacks/typescript-vitest.md
 <agent-config>/skills/predictive-tdd/stacks/java-junit-maven.md
 <agent-config>/skills/predictive-tdd/stacks/python-pytest.md
+<agent-config>/skills/predictive-tdd/stacks/rust-cargo.md
 ```
 
 | Profile | Reads | Test command | Quality gate | Inactive test |
@@ -317,15 +333,18 @@ profiles. Every branch ships three:
 | TypeScript + Vitest | `package.json` | the project's `test` script | type check, lint, smell rules | `it.todo()` |
 | Java + JUnit 5 + Maven | `pom.xml` | `mvn test` (wrapper if present) | `mvn pmd:check` | `@Disabled` |
 | Python + pytest | `pyproject.toml` | `pytest` | `ruff check` | `@pytest.mark.skip` |
+| Rust + Cargo | `Cargo.toml` | `cargo test` | `cargo clippy` | `#[ignore]` |
 
 The TDD orchestration reads the project's manifest first — `package.json`,
-`pom.xml` or `pyproject.toml` — and selects the matching profile before
+`pom.xml`, `pyproject.toml` or `Cargo.toml` — and selects the matching profile before
 changing code. It uses only gates the project actually declares — a profile
 never invents a plugin or rewrites the build to get a check it prefers.
 
 The exercises in this repository are set up per stack: `./setup.sh
 typescript-vitest`, `./setup.sh java-junit-maven` or `./setup.sh python-pytest`
 installs the matching skeleton, and the profile follows from what it finds.
+Rust has no exercise skeleton yet; point the workflow at an existing Cargo
+project and the Rust profile is selected the same way.
 Each profile works just as well in any other project on that stack that you
 point the workflow at. Adding another language means one more stack profile and
 one more template, not another copy of the workflow.
@@ -339,10 +358,10 @@ tool we wrote ourselves, so the model cannot know it from training. Its spec
 contains deliberate ambiguities, and correctness is checked by 15 acceptance
 scenarios the agent never sees.
 
-#### This exact workflow, ten runs per model
+#### The base workflow, ten runs per model
 
-Predictive TDD v1 as shipped, on the two models it is validated on. Ten runs
-per cell — the largest sample in our data.
+Predictive TDD v1 — the base the shipped version builds on — on the two models
+it is validated on. Ten runs per cell, the largest sample in our data.
 
 | What we measured | Opus 5 (Claude Code) | GPT-5.6 SOL (pi) |
 |---|---:|---:|
@@ -361,6 +380,31 @@ A value below 5 means every function stays easy to follow.*
 
 Zero linter findings in all twenty runs, and no function that is hard to read
 on either model.
+
+#### What the driving/verification split changes
+
+v1.2 adds the split to that base. Measured against it on Claim Office,
+five runs per cell, TypeScript:
+
+| What we measured | v1, Opus 5.5 | **v1.2**, Opus 5.5 | v1, GPT-6.1 Sol | **v1.2**, GPT-6.1 Sol |
+|---|---:|---:|---:|---:|
+| Hidden acceptance scenarios passed | 100 % | 100 % | 100 % | 100 % |
+| Verification tests per run | — | 20 | — | 33 |
+| Verification tests that turned out red | — | 0 | — | 0 |
+| Mutation score (higher is better) | 0.94 | 0.92 | 0.90 | 0.94 |
+| Cognitive complexity, hardest function¹ | 2.4 | 2.2 | 3.0 | 2.2 |
+| Time per task | 15 min | 18 min | 36 min | 27 min |
+| Tokens used | 24.4 M | 28.4 M | 9.0 M | 9.8 M |
+
+*(The v1 mutation score on Sol rests on three of its five runs.)*
+
+The split costs nothing in correctness or code quality, and the agent never
+misjudged which tests would pass. On Opus 5.5 it costs about 15 % more time and
+tokens; on Sol it was faster. What it buys is a cleaner method — every Red in
+the driving part means something — not better numbers.
+
+The refactor-profile comparison further up was measured on v1 as well; the
+isolated profile with the split is not measured separately.
 
 #### Structure beats "just use TDD"
 
@@ -396,7 +440,7 @@ better.
 
 *(These two cells were measured on an earlier version of the same line, before
 the test-list cross-check was added. They are the best floor comparison we
-have; the shipped version is measured in the table above.)*
+have; the base of the shipped version is measured in the table above.)*
 
 #### Concrete examples matter more than any workflow
 
@@ -421,8 +465,8 @@ first, and it has held across every model and workflow we have measured it on.)*
   **TypeScript** stack. We have measured the same workflow separately on
   **Java**; those results are their own comparison and are not averaged in
   here, because quality tools do not produce comparable numbers across
-  languages. The Python profile ships with the same method but is not yet
-  covered by measurements of its own.
+  languages. The Python and Rust profiles ship with the same method but are
+  not yet covered by measurements of their own.
 - Results are **per model**. Rankings between workflows have flipped between
   model versions before — including within this workflow line.
 
@@ -453,9 +497,7 @@ unless you ask for it. Provider credentials, routing, model selection, and
 permission policy are intentionally not shipped.
 
 This distribution is generated from
-`exact-ptdd-v1-pi` in the `agentic_coding_lab` repository. It was promoted
-after `RQ-test-list-dimensions-replication` at n=10 per workflow and platform
-cell on Claim Office. The canonical methodology is validated on **GPT-5.6 SOL
+`exact-ptdd-v1.2-verification-split-pi` in the `agentic_coding_lab` repository. The Predictive TDD line was promoted after `RQ-test-list-dimensions-replication` at n=10 per workflow and platform cell on Claim Office. The driving/verification split was promoted after `RQ-ptdd-verification-split` showed it non-inferior to that base. The canonical methodology is validated on **GPT-5.6 SOL
 with pi** and **native Opus 5 with Claude Code**. Copilot, Cursor, and OpenCode
 are semantic ports of the same method; they are not presented as independent
 cross-harness experiment cells.
