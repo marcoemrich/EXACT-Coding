@@ -216,9 +216,9 @@ Use this structure:
 
 ## Questions (rot)
 
-- <Open question 1> (klaert: <wer oder was koennte antworten>)
+- <Open question 1> (resolves: <who or what could answer>)
 - <Open question 2>
-(or: "Keine offenen Fragen - alle Unklarheiten wurden geklaert.")
+(or: "No open questions - all ambiguities were resolved.")
 
 ## New Stories (ausgelagert)
 

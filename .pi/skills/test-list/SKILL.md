@@ -13,7 +13,8 @@ Create a test list using the project's inactive-test mechanism that covers **eve
 1. Read the specification (`prompt.md`) thoroughly -- every rule, every example, every clarifying question (?)
 2. Turn each example into at least one inactive test case
 3. Order tests from simplest to most complex
-4. Keep every test inactive -- NO executable tests yet
+4. Separate the **driving tests**, which build the implementation step by step, from the **verification tests**, which confirm what the driving tests already built
+5. Keep every test inactive -- NO executable tests yet
 
 ## Process
 
@@ -44,7 +45,7 @@ Arrange tests in increasing complexity:
 5. Multi-step scenarios (e.g., operations that reference earlier results)
 
 ### Step 4: Write Test File
-Create the test file using the project's inactive-test syntax. Keep every listed test inactive.
+Create the test file using the project's inactive-test syntax. Keep every listed test inactive. Place the driving tests first, in the order from Step 3, and the verification tests after them in a separate group named `verification`, using the grouping construct from the active stack profile. Step 6 decides which tests belong in which group.
 
 ### Step 5: Cross-Check Independent Specification Dimensions
 
@@ -59,7 +60,22 @@ Before declaring the list complete, review the specification and the inactive te
 
 Use a falsifying counterfactual as the final check: if one explicitly specified entry or rule were removed or changed while neighboring behavior stayed correct, would an inactive test detect it once activated? If not, the list is not complete.
 
-### Step 6: Provide Summary
+### Step 6: Separate Driving Tests from Verification Tests
+
+The list now serves two purposes, and they need different treatment during implementation.
+
+**Why:** In TDD, a test earns its place in the cycle by failing first. That failure is the evidence that the test can detect the missing behavior and that the next production change is actually needed. A test you already expect to pass once its parts exist gives no direction — it cannot fail for the right reason — but it still protects the implementation against a later change that breaks a combination or drops an entry. Both kinds are valuable. Mixing them makes the driving sequence harder to follow and turns every expected pass into an apparent gap in the Red-Green rhythm.
+
+For each test, ask: once the tests before it are implemented minimally, will this test fail?
+
+- **Driving test:** it requires behavior that no earlier test forces. It stays in the driving sequence, in the place Step 3 gave it.
+- **Verification test:** it is expected to pass automatically once the behaviors it combines exist. Typical examples are cross-dimension combinations from Step 5, further values of a rule an earlier test already generalized, and cells that confirm two independently built features compose. Move it into the `verification` group.
+
+Decide each combination on its own merits. A combination whose outcome needs behavior beyond its parts — an interaction rule, a precedence, a special case the specification names for that combination — is a driving test. Place it directly after the driving tests for its parts, not in the verification group.
+
+You will not foresee every generalization now. That is expected: the Predictive TDD cycle re-examines each driving test before activating it and may still move it into the verification group.
+
+### Step 7: Provide Summary
 
 After creating and cross-checking the test list, provide this summary:
 
@@ -69,10 +85,14 @@ Test List Created:
 **Test File**: [test file path]
 **Tests**: [count]
 
-**Test Cases** (ordered simple -> complex):
+**Driving Tests** (ordered simple -> complex):
 1. [first test description]
 2. [second test description]
 3. [third test description]
+...
+
+**Verification Tests**:
+- [test description] -- [which driving tests are expected to make it pass]
 ...
 
 **Coverage Cross-Check**:
@@ -81,7 +101,7 @@ Test List Created:
 - [why representative tests are discriminating where exhaustive combinations are unnecessary]
 ```
 
-### Step 7: Verify the Inactive List and Apply the HITL Checkpoint
+### Step 8: Verify the Inactive List and Apply the HITL Checkpoint
 
 Predict and run the full suite. Continue only when the inactive list leaves the
 suite green; correct the list without implementing behavior if it does not.
@@ -103,6 +123,8 @@ to the first Predictive TDD cycle.
 - Keep tests **independent**
 - One behavior per test
 - Make the independent-dimensions cross-check visible in the summary
+- Put a test in the `verification` group only when you expect it to pass once the driving tests it relies on are implemented
+- Name, for each verification test, the driving tests it relies on
 
 ### DON'T
 - Write executable tests yet
@@ -111,3 +133,5 @@ to the first Predictive TDD cycle.
 - Leave a rejection test vague when its observable outcome is known
 - Miss an entire operation described in the spec
 - Order randomly
+- Park a combination in the `verification` group when its outcome needs behavior its parts do not provide
+- Drop a verification test because it is expected to pass -- it is the safety net, not filler
