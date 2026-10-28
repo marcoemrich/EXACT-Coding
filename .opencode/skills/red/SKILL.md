@@ -13,9 +13,10 @@ description: Run only the Red phase of one Predictive TDD cycle — activate exa
 
 ## What to read
 
-1. `.opencode/skills/predictive-tdd/SKILL.md` — sections **Core rules**,
-   **1. Activate one behavior** and **2. Reach behavioral Red**. Those are
-   binding as written.
+1. `.opencode/skills/predictive-tdd/SKILL.md` — section **Core rules** and
+   steps **1** and **2** of **One predictive cycle** (choosing and activating
+   one behavior, reaching behavioral Red). Those are binding as written,
+   including any rule there about which test to activate next.
 2. The matching profile under `.opencode/skills/predictive-tdd/stacks/` for
    inactive-test syntax and the commands to run.
 3. `.opencode/skills/exact-coding-shared/human-in-the-loop.md` for the Red checkpoint and the prediction-mismatch rule.
@@ -27,7 +28,7 @@ invent a list as a side effect of this phase.
 
 Execute exactly those two steps of the cycle, then stop:
 
-- activate one behavior from the test list,
+- choose the next behavior from the test list as step 1 prescribes, and activate it,
 - predict the narrowest test's outcome, failure category, and message or values,
 - run it and compare prediction with reality,
 - add only enough scaffold to reach a behavioral failure, re-predicting each time.
@@ -40,8 +41,10 @@ Red. Do not write production behavior, and do not continue into Green — even
 when the Autonomy Level would not stop there. The human invoked a single phase;
 that invocation is the checkpoint.
 
-If the activated test already passes, confirm that prediction, record that no
-production change is needed, and stop. Do not manufacture a failure.
+If the activated test already passes, record it exactly as the Predictive TDD
+skill prescribes for that kind of test — whether the passing result was the
+prediction or a miss — note that no production change is needed, and stop. Do
+not manufacture a failure.
 
 On a prediction mismatch, follow **Prediction mismatch** in the Predictive TDD
 skill and stop there.

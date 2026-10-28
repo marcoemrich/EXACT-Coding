@@ -50,6 +50,27 @@ class FeatureTest {
 }
 ```
 
+Place the verification tests after all driving tests, inside a nested class named exactly `Verification`. The workflow refers to the group by this name; do not translate or extend it:
+
+```java
+import org.junit.jupiter.api.Nested;
+
+class FeatureTest {
+    // driving tests as above
+
+    @Nested
+    class Verification {
+        @Disabled("TODO: combination result from the specification")
+        @Test
+        void handlesTheCombination() {
+            // Add the observation when this test is activated.
+        }
+    }
+}
+```
+
+Moving a test into the verification group means moving its disabled method into that nested class before activating it.
+
 Use JUnit 5 annotations and assertions. Keep every future behavior disabled; do not use commented-out tests or test-name filters as the test list.
 
 ## Interpret RED correctly

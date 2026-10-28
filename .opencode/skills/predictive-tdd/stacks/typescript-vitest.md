@@ -45,6 +45,21 @@ describe("Feature Name", () => {
 });
 ```
 
+Place the verification tests after all driving tests, inside a nested group named exactly `verification`. The workflow refers to the group by this name; do not translate or extend it:
+
+```typescript
+describe("Feature Name", () => {
+  it.todo("should [driving behavior] -- [expected value from spec]");
+  it.todo("should [next driving behavior] -- [expected value from spec]");
+
+  describe("verification", () => {
+    it.todo("should [combination] -- [expected value from spec]");
+  });
+});
+```
+
+Moving a test into the verification group means moving its `it.todo` into that `describe` block before activating it.
+
 Use the import extension and module conventions already established by the project. Use `.spec.ts` unless the project establishes another suffix. `RangeError` is only an example; require an error type only when the specification establishes it or after explicitly stating the chosen observable contract.
 
 ## Interpret RED correctly

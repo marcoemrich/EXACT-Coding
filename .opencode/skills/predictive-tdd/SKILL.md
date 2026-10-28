@@ -25,29 +25,51 @@ The prediction requirement applies only within the TDD workflow. Routine reposit
 Before the first cycle:
 
 1. Read the complete specification and identify every rule, example, boundary, and ambiguity.
-2. Create or review an ordered test list. Keep future tests inactive.
+2. Create or review an ordered test list: the driving tests first, the verification tests after them in their `verification` group. Keep future tests inactive.
 3. Determine the project's stack and commands. If `stacks/` contains a matching profile, read it before changing code.
 4. Establish a baseline with the applicable behavior, compilation/type, lint, and smell checks. Predict each check before running it.
 
+## Driving tests and verification tests
+
+The test list has two parts. **Driving tests** build the implementation: each one should fail first, and its failure is what justifies the next production change. **Verification tests** confirm what the driving tests already built: each one is expected to pass when activated, and it stays in the suite to protect that behavior against later changes.
+
+**Why the order matters:** The value of a Red is that it tells you the next step. A test you expect to pass cannot tell you that; activating it in the middle of the driving sequence spends a cycle on a test that cannot fail for the right reason. Working through all driving tests first keeps every Red meaningful, and activating the verification tests afterwards still builds the full safety net.
+
+Work in two parts:
+
+1. **Driving part:** activate the driving tests one at a time, in list order, each in a full predictive cycle.
+2. **Verification part:** once every driving test is active and green, activate the verification tests one at a time, each with the prediction that it passes.
+
+Do not activate a verification test while a driving test is still inactive, and do not return to driving tests after the verification part has begun. If the verification part reveals missing behavior, handle it there as described under "Verification part".
+
 ## One predictive cycle
 
-### 1. Activate one behavior
+### 1. Choose and activate one behavior
 
-State its given/input, operation, and exact expected outcome in domain language. Choose the smallest public observation that proves it, then activate or write exactly one test.
+Before activating the next driving test, reconsider it in the light of what you have learned since the test list was written. Ask: given the code as it is now, will this test fail?
+
+- If you expect it to fail, it drives the next step. Activate it.
+- If you expect it to pass already, because an earlier generalization covers it, it no longer drives anything. Move it, still inactive, into the `verification` group, name the earlier test that forced the covering behavior, and reconsider the next driving test instead.
+
+Move a test only before activating it. Once a test has run, its result stands; a driving test that passes unexpectedly is handled under "Reach behavioral Red" below, not moved afterwards.
+
+If you cannot name the earlier test that forced the covering behavior, the implementation may do more than any test demanded. Do not move the test then; activate it, and let the result show whether it passes.
+
+For the chosen test, state its given/input, operation, and exact expected outcome in domain language. Choose the smallest public observation that proves it, then activate or write exactly one test.
 
 ### 2. Reach behavioral Red
 
-Inspect the current code and predict the narrowest test's load/compile/execution outcome, failure category, and relevant message or values. Run it and compare.
+Open the phase with the `## Red` marker (see "Mandatory output markers" below), then inspect the current code and predict the narrowest test's load/compile/execution outcome, failure category, and relevant message or values. Run it and compare.
 
 If loading or compilation prevents the assertion from running, add only enough scaffold to reach the behavioral failure. Predict and check again. Do not implement the behavior until Red fails for the intended reason.
 
-If the new test already passes, confirm that prediction, record that no production change was needed, and do not manufacture a failure.
+If the new driving test already passes against your prediction, record the prediction as `Incorrect`, investigate which earlier change made it pass, record that no production change was needed, and do not manufacture a failure.
 
-After comparing the prediction with reality, consult `.opencode/skills/exact-coding-shared/human-in-the-loop.md` and apply the Red checkpoint for the active Autonomy Level.
+Close the phase with the `Red Phase Complete:` block and both prediction lines. Then consult `.opencode/skills/exact-coding-shared/human-in-the-loop.md` and apply the Red checkpoint for the active Autonomy Level.
 
 ### 3. Reach Green minimally
 
-Make the smallest production change likely to pass the active test without anticipating inactive examples. Hardcoded values and narrow conditionals are valid intermediate steps.
+Open the phase with the `## Green` marker. Make the smallest production change likely to pass the active test without anticipating inactive examples. Hardcoded values and narrow conditionals are valid intermediate steps.
 
 Predict and run the focused test. Include expected pass/fail and todo counts when available. Compare the result; investigate any mismatch before continuing.
 
@@ -112,13 +134,80 @@ Use the active stack profile only for language- and framework-specific applicati
 
 Make at most one refactoring at a time. Predict and run the smallest relevant check after each. If no refactoring improves the Four Rules, leave the code unchanged.
 
-**The invoking EXACT Coding profile selects the Refactor execution context.** Apply the Four Rules and domain-boundary contract through that profile's inline or isolated mechanism. After the review, consult `.opencode/skills/exact-coding-shared/human-in-the-loop.md` and apply the Refactor checkpoint for the active Autonomy Level, including when no change improves the code.
+**The invoking EXACT Coding profile selects the Refactor execution context.**
+Apply the Four Rules and domain-boundary contract through that profile's
+inline or isolated mechanism. Open the phase with the `## Refactor` marker
+(see below) and emit it also when the review concludes that no refactoring
+improves the code. After the review, consult `.opencode/skills/exact-coding-shared/human-in-the-loop.md` and apply the
+Refactor checkpoint for the active Autonomy Level.
 
 ### 5. Close once
 
 Predict and run the complete suite and all other applicable gates from the stack profile. Do not run the complete suite both before and during this closing step unless investigating a mismatch.
 
 Close with a compact record of the behavior, Red evidence, minimal Green change or already-green result, refactoring decision, final gates, and next inactive behavior. Then start the next cycle immediately.
+
+## Verification part
+
+When every driving test is active and the suite is green, activate the verification tests one at a time:
+
+1. Name the driving tests that should make it pass, predict that it passes, activate it, and run the suite.
+2. If it passes as predicted, record the already-green outcome as described under "Mandatory output markers" and continue with the next verification test. A test that changed no production code needs no new refactoring trial.
+3. If it fails, the split was wrong: the combination needs behavior its parts do not provide. Record the prediction as `Incorrect`, leave the test where it is, and run a full predictive cycle for it — Red evidence, minimal Green, Four Rules review — before activating the next verification test.
+
+Every verification test must be active and passing before the feature is complete.
+
+## Mandatory output markers
+
+Each phase opens with a heading, so the cycle is visible to anyone reading
+along and the structure holds even at an Autonomy Level that never stops
+for approval. Emit them verbatim.
+
+| Phase     | Marker                                            |
+|-----------|---------------------------------------------------|
+| Test List | `## Test List` + `Test List Created:`             |
+| Red       | `## Red` heading                                  |
+| Red       | `Red Phase Complete:` plus both prediction lines  |
+| Green     | `## Green` heading                                |
+| Refactor  | `## Refactor` heading                             |
+
+Red phase output:
+
+```
+## Red -- Test N: <test description>
+
+<prediction and failure verification steps>
+
+Red Phase Complete:
+**Compilation Prediction**: <what you expected> Correct
+**Runtime Prediction**: <what you expected> Correct
+
+<result summary>
+```
+
+Emit **both** prediction lines, verbatim, each ending in `Correct` or `Incorrect`. Do not abbreviate them, do not summarize them as "both correct", and do not collapse them into one line. This is the mechanical form of Core rule 3: an unexpected result is recorded as `Incorrect` and investigated, never rewritten as predicted.
+
+Use the same Red output when a test passes on activation:
+
+- **Verification test, passes as predicted:** the runtime prediction is that it passes, marked `Correct`; add `Test already passes -- no new failure to fix. No production change needed.`
+- **Driving test, passes against the prediction:** the runtime prediction is the failure you expected, marked `Incorrect`; state which earlier change made it pass. A miss is evidence about the code; recording it is what makes the prediction count mean something.
+
+Green phase output:
+
+```
+## Green -- <brief summary of what was added>
+```
+
+Refactor phase output:
+
+```
+## Refactor -- <brief summary of what was improved, or "no improvement possible">
+```
+
+This heading is the only signal that the Four Rules review happened. Emit it
+every cycle, including the cycles where the review changes nothing — a cycle
+with no heading is indistinguishable from a cycle where the review was
+skipped.
 
 ## Prediction mismatch
 
