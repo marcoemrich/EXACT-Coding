@@ -71,5 +71,5 @@ prediction is wrong. Green has no default stop.
 Exported from the promoted `exact-ptdd-v1.2-verification-split-pi` workflow. The methodology was validated
 on GPT-5.6 SOL with pi. The driving/verification split of the test list was measured
 as non-inferior to that base on GPT-6.1 Sol with pi and on Opus 5.5 with
-Claude Code. Other harness trees are
-mechanical ports of the same files, not claims of cross-harness validation.
+Claude Code. Other harness trees ship the
+same method; they have been tested manually and in workshops, not in lab batches.
