@@ -497,10 +497,10 @@ unless you ask for it. Provider credentials, routing, model selection, and
 permission policy are intentionally not shipped.
 
 This distribution is generated from
-`exact-ptdd-v1.2-verification-split-pi` in the `agentic_coding_lab` repository. The Predictive TDD line was promoted after `RQ-test-list-dimensions-replication` at n=10 per workflow and platform cell on Claim Office. The driving/verification split was promoted after `RQ-ptdd-verification-split` showed it non-inferior to that base. The canonical methodology is validated on **GPT-5.6 SOL
-with pi** and **native Opus 5 with Claude Code**. Copilot, Cursor, and OpenCode
-are semantic ports of the same method; they are not presented as independent
-cross-harness experiment cells.
+`exact-ptdd-v1.2-verification-split-pi` in the `agentic_coding_lab` repository. The Predictive TDD line was promoted after `RQ-test-list-dimensions-replication` at n=10 per workflow and platform cell on Claim Office. The driving/verification split was promoted after `RQ-ptdd-verification-split` showed it non-inferior to that base. Our lab experiments for this method run on **GPT-5.6 SOL
+with pi** and **native Opus 5 with Claude Code**, and the numbers in this README
+come from those two. Copilot, Cursor and OpenCode ship the same method; we have
+tested them by hand and in workshops.
 
 ### Credits
 
