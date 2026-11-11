@@ -24,9 +24,21 @@ if [ -z "$STACK" ] || [ ! -d "$TEMPLATES/$STACK" ]; then
   exit 64
 fi
 
-if [ -e package.json ] || [ -e pom.xml ] || [ -e pyproject.toml ]; then
+# Any top-level entry of any skeleton (package.json, pom.xml, Cargo.toml, src/
+# ...) means a project is already set up. Deriving the list from templates/
+# keeps the guard right when a stack is added.
+existing=""
+for entry in "$TEMPLATES"/*/files/* "$TEMPLATES"/*/files/.[!.]*; do
+  [ -e "$entry" ] || continue
+  name="$(basename "$entry")"
+  if [ -e "$name" ]; then
+    existing="$name"
+    break
+  fi
+done
+if [ -n "$existing" ]; then
   {
-    echo "This directory already has a project set up."
+    echo "This directory already has a project set up ($existing exists)."
     echo "Running setup again would overwrite your work. Use a fresh clone instead."
   } >&2
   exit 1
