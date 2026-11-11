@@ -31,6 +31,7 @@ works for every language. Pick your stack and run setup once after cloning:
 | TypeScript + Vitest | `./setup.sh typescript-vitest` | Node.js 20 or higher |
 | Java + JUnit + Maven | `./setup.sh java-junit-maven` | JDK 17 or higher, Maven 3.9 or higher |
 | Python + pytest | `./setup.sh python-pytest` | Python 3.11 or higher, the `venv` module |
+| Rust + Cargo | `./setup.sh rust-cargo` | Rust 1.85 or higher with Clippy, jq |
 
 Setup copies the skeleton from `templates/<stack>/` into the repository root,
 installs its dependencies and runs the example test. Stack-specific
@@ -52,7 +53,7 @@ or with a **local installation**.
 The repo includes a Dev Container configuration with Node.js, Claude Code, and a
 restrictive firewall pre-installed. The image ships the Node.js and Python
 toolchains, so it covers the TypeScript and Python stacks out of the box; for
-the Java stack use a local installation.
+the Java and Rust stacks use a local installation.
 
 #### Prerequisites
 
@@ -128,6 +129,15 @@ python3 -m venv --help
 # Expected: usage output, not "ensurepip is not available"
 ```
 
+For the Rust stack:
+
+```bash
+rustc --version
+# Expected: 1.85 or higher (e.g. 1.98.1)
+cargo clippy --version
+# Expected: a version line, not "no such command: clippy"
+```
+
 **2. Claude Code installed and API key configured?**
 
 ```bash
@@ -142,7 +152,7 @@ If this hangs or returns an authentication error, your API key is not configured
 `./setup.sh` runs the example test as its last step, so a successful setup has
 already answered this. To check again later, run your stack's test command from
 `templates/<stack>/SETUP.md` -- `npm test` for TypeScript, `mvn test` for Java,
-`pytest` for Python.
+`pytest` for Python, `cargo test` for Rust.
 
 The expected output for each stack is in that same file. Once you have worked
 through exercises you will see more files and tests than the example. What
