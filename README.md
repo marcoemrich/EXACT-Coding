@@ -171,7 +171,7 @@ Design. The historical Opus/Hybrid branches remain available for reproduction,
 but are superseded as the maintained product line.
 
 Each PTDD branch carries exactly one agent configuration. This branch is part
-of **Predictive TDD v1.2**, distribution version **2026-10-29**.
+of **Predictive TDD v1.2**, distribution version **2026-11-11**.
 
 | Agent | Predictive TDD branch | Config | Start EXACT Coding with |
 |---|---|---|---|
