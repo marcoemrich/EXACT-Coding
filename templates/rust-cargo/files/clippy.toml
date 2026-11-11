@@ -1,0 +1,4 @@
+# The size gates, set to the same limits the Python template's pylint rules use.
+too-many-arguments-threshold = 4
+too-many-lines-threshold = 30
+excessive-nesting-threshold = 3

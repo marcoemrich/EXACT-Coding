@@ -1,0 +1,21 @@
+# The crate is a library: exercise code goes into modules declared in
+# src/lib.rs, unit tests live inline under `#[cfg(test)]` beside that code.
+[package]
+name = "exact-coding-exercises"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.85"
+publish = false
+
+# The smells for the end-refactor pass. Clippy's default groups stay on; the
+# lints below add the size and nesting gates (thresholds in clippy.toml) and
+# the duplication carriers. Cognitive complexity is deliberately not a clippy
+# lint here: ./cognitive.sh measures it with rust-code-analysis, so those
+# scores are measurements, not smells.
+[lints.clippy]
+too_many_lines = "warn"
+excessive_nesting = "warn"
+match_same_arms = "warn"
+needless_pass_by_value = "warn"
+unused_self = "warn"
+redundant_else = "warn"
